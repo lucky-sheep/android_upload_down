@@ -8,10 +8,7 @@ import com.google.gson.JsonObject
 import com.hunliji.hlj_download.upload.compress.Compress
 import com.hunliji.hlj_download.upload.constract.UploadConstant
 import com.hunliji.hlj_download.upload.constract.UploadConstant.Companion.putThreshold
-import com.hunliji.hlj_download.upload.model.HljUploadResult
-import com.hunliji.hlj_download.upload.model.TokenInfo
-import com.hunliji.hlj_download.upload.model.UpLoadInterface
-import com.hunliji.hlj_download.upload.model.UploadBuilder
+import com.hunliji.hlj_download.upload.model.*
 import com.hunliji.hlj_download.upload.net.FileService
 import com.hunliji.hlj_download.upload.net.ProgressBody
 import com.hunliji.hlj_download.upload.net.RetrofitClient
@@ -38,7 +35,7 @@ object UploadHelper : CoroutineScope by MainScope() {
     private var parseToken: ((JsonObject) -> String)? = null
     private var globalTokenRetrofit: Retrofit? = null
     private var globalHost: String = ""
-    private var tokenInfo: TokenInfo? = null
+    private var uploadInfo: UploadInfo? = null
     private var globalTokenPath: String = UploadConstant.GLOBAL_TOKEN_PATH
     private var job: Job? = null
     private fun <T> request(
@@ -142,8 +139,8 @@ object UploadHelper : CoroutineScope by MainScope() {
                     }
                     keyBody = RequestBody.create(MediaType.parse("text/plain"), "$name.gif")
                 }
-                Log.e("imageHostUrl","=========${tokenInfo?.imageHostUrl}")
-                retrofit.uploadFile(tokenInfo?.imageHostUrl?:"",tokenBody, part, keyBody)
+                Log.e("imageHostUrl","=========${uploadInfo?.imageHostUrl}")
+                retrofit.uploadFile(uploadInfo?.imageHostUrl?:"",tokenBody, part, keyBody)
             } else {
                 Block(
                     upLoadFile,
@@ -303,11 +300,14 @@ object UploadHelper : CoroutineScope by MainScope() {
         ) ?: false))
     }
 
-    private fun parseToken(jsonObject: JsonObject): TokenInfo {
+    private fun parseToken(jsonObject: JsonObject): UploadInfo {
         Log.e("live_download", "jsonObject:$jsonObject")
-        val fromJson = GsonUtils.fromJson(jsonObject.asString, TokenInfo::class.java)
-        this.tokenInfo = fromJson
-        return fromJson
+        val fromJson = GsonUtils.fromJson(jsonObject.toString(), TokenInfo::class.java)
+        if (fromJson.resultCode ==1000 && fromJson.data != null){
+            this.uploadInfo = fromJson.data
+            return fromJson.data
+        }
+       return UploadInfo()
     }
 
     private fun getFileHash(file: File): String {
