@@ -140,7 +140,7 @@ object UploadHelper : CoroutineScope by MainScope() {
                     keyBody = RequestBody.create(MediaType.parse("text/plain"), "$name.gif")
                 }
                 Log.e("imageHostUrl","=========${uploadInfo?.imageHostUrl}")
-                retrofit.uploadFile(uploadInfo?.imageHostUrl?:"",tokenBody, part, keyBody)
+                retrofit.uploadFile(tokenBody, part, keyBody)
             } else {
                 Block(
                     upLoadFile,
