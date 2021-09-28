@@ -29,10 +29,10 @@ public class HljUploadResult {
         if (!TextUtils.isEmpty(url)) {
             return url;
         }
-        if (TextUtils.isEmpty(domain) || TextUtils.isEmpty(path)) {
-            return "";
-        }
-        return domain + path;
+//        if (TextUtils.isEmpty(domain) || TextUtils.isEmpty(path)) {
+//            return "";
+//        }
+        return Domain.INSTANCE.getDoamin() +'/'+ hash;
     }
 
     public void setUrl(String url) {

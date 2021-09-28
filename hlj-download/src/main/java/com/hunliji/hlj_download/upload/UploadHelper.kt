@@ -129,7 +129,7 @@ object UploadHelper : CoroutineScope by MainScope() {
                 val fileBody: RequestBody =
                     ProgressBody(RequestBody.create(null, upLoadFile), builder.getProgress())
                 val part = MultipartBody.Part.createFormData("file", Utils.MD5(file.name), fileBody)
-                val tokenBody = RequestBody.create(MediaType.parse("text/plain"), "78KaWX2iyyv2SFv65_zq25leEz_U_8EMfXpLyOu4:V6cKRsNc758vLCFiWASzKLi0sPM=:eyJzY29wZSI6Im1hcnJ5IiwibWltZUxpbWl0IjoiIXRleHQvKiIsInJldHVybkJvZHkiOiJ7XCJwZXJzaXN0ZW50SWRcIjokKHBlcnNpc3RlbnRJZCksXCJpbWFnZV9wYXRoXCI6JChrZXkpLFwiaGFzaFwiOiQoaGFzaCksXCJ3aWR0aFwiOiQoaW1hZ2VJbmZvLndpZHRoKSxcImhlaWdodFwiOiQoaW1hZ2VJbmZvLmhlaWdodCksXCJvcmllbnRhdGlvblwiOiQoZXhpZi5PcmllbnRhdGlvbiksXCJkb21haW5cIjpcImh0dHBzOi8vcW5tLmh1bmxpamkuY29tL1wiLFwiZGVhbF9wYXRoXCI6XCJcIixcImZyb21cIjpcInRpbWVzdGFtcF9hbnRpbGVlY2hfc3RhbmRieVwiLFwicGVyc2lzdGVudF9pZFwiOiQocGVyc2lzdGVudElkKX0iLCJkZWFkbGluZSI6MTYzMjg2NDMzNH0=")
+                val tokenBody = RequestBody.create(MediaType.parse("text/plain"), token)
                 var keyBody: RequestBody? = null
                 if (upLoadFile.name.toLowerCase(Locale.getDefault()).endsWith(".gif")) {
                     var name = EncodeUtil.md5sum(upLoadFile)
@@ -305,6 +305,7 @@ object UploadHelper : CoroutineScope by MainScope() {
         val fromJson = GsonUtils.fromJson(jsonObject.toString(), TokenInfo::class.java)
         if (fromJson.resultCode ==1000 && fromJson.data != null){
             this.uploadInfo = fromJson.data
+            Domain.doamin = this.uploadInfo?.imageHostUrl
             return fromJson.data
         }
        return UploadInfo()
