@@ -25,14 +25,15 @@ public class HljUploadResult {
 
     private String url;
 
-    public String getUrl() {
+    public String getUrl(String folderName) {
         if (!TextUtils.isEmpty(url)) {
             return url;
         }
-//        if (TextUtils.isEmpty(domain) || TextUtils.isEmpty(path)) {
-//            return "";
-//        }
-        return Domain.INSTANCE.getDoamin() +'/'+ hash;
+        //        if (TextUtils.isEmpty(domain) || TextUtils.isEmpty(path)) {
+        //            return "";
+        //        }
+
+        return Domain.INSTANCE.getDoamin() + folderName + "" + hash;
     }
 
     public void setUrl(String url) {
