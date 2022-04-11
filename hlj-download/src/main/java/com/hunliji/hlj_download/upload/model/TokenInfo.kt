@@ -19,4 +19,24 @@ data class UploadInfo(
     val headImgFolder:String?=null,
     val anchorFolder:String?=null,
     val familyFolder:String?=null
-)
+){
+    fun getImageType(type: Int): String{
+        return when(type){
+            FileType.HEADER_IMAGE.type ->{
+                headImgFolder?:""
+            }
+            FileType.ANCHOR_IMAGE.type ->{
+                anchorFolder?:""
+            }
+            else-> {
+                familyFolder?:""
+            }
+        }
+    }
+}
+
+enum class FileType(val type: Int){
+    HEADER_IMAGE(1),
+    ANCHOR_IMAGE(2),
+    FAMILY_IMAGE(3)
+}

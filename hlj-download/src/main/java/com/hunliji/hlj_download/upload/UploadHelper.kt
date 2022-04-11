@@ -87,6 +87,8 @@ object UploadHelper : CoroutineScope by MainScope() {
     fun uploadSingle(
         file: File,
         from: String = "",
+        userId: Long = 0,
+        type: Int = FileType.FAMILY_IMAGE.type,
         inputTokenPath: String? = null,
         init: UploadBuilder<HljUploadResult>.() -> Unit
     ) {
@@ -128,7 +130,7 @@ object UploadHelper : CoroutineScope by MainScope() {
             val loadResult = if (upLoadFile.length() < putThreshold) {
                 val fileBody: RequestBody =
                     ProgressBody(RequestBody.create(null, upLoadFile), builder.getProgress())
-                val part = MultipartBody.Part.createFormData("file", Utils.MD5(file.name), fileBody)
+                val part = MultipartBody.Part.createFormData("file", "${userId}_${Utils.MD5(file.name)}", fileBody)
                 val tokenBody = RequestBody.create(MediaType.parse("text/plain"), token)
                 var keyBody: RequestBody? = null
                 if (upLoadFile.name.toLowerCase(Locale.getDefault()).endsWith(".gif")) {
@@ -140,7 +142,7 @@ object UploadHelper : CoroutineScope by MainScope() {
                     keyBody = RequestBody.create(MediaType.parse("text/plain"), "$name.gif")
                 }
                 Log.e("imageHostUrl","=========${uploadInfo?.imageHostUrl}")
-                retrofit.uploadFile(tokenBody, part, keyBody)
+                retrofit.uploadFile(uploadInfo?.getImageType(type),tokenBody, part, keyBody)
             } else {
                 Block(
                     upLoadFile,
@@ -167,6 +169,7 @@ object UploadHelper : CoroutineScope by MainScope() {
 
     fun uploadGroup(
         list: List<UpLoadInterface>,
+        type: Int = FileType.FAMILY_IMAGE.type,
         init: UploadBuilder<List<HljUploadResult>>.() -> Unit
     ) {
         val builder = UploadBuilder<List<HljUploadResult>>().also(init)
@@ -175,12 +178,13 @@ object UploadHelper : CoroutineScope by MainScope() {
         val map = mutableMapOf<String, String>()
         builder.getStart()?.invoke()
         val globalTokenService = globalTokenRetrofit?.create(FileService::class.java)
-        uploadV2(index, map, list, uploadList, builder, globalTokenService)
+        uploadV2(index, map,type, list, uploadList, builder, globalTokenService)
     }
 
     private fun requestToken(
         index: Int,
         map: MutableMap<String, String>,
+        type: Int = FileType.FAMILY_IMAGE.type,
         list: List<UpLoadInterface>,
         uploadList: MutableList<HljUploadResult>,
         builder: UploadBuilder<List<HljUploadResult>>,
@@ -204,7 +208,7 @@ object UploadHelper : CoroutineScope by MainScope() {
             map[tokenPath] = token
         }) {
             success {
-                uploadV2(index, map, list, uploadList, builder, globalTokenService)
+                uploadV2(index, map,type, list, uploadList, builder, globalTokenService)
             }
             error {
                 builder.getError()?.invoke(it)
@@ -215,6 +219,7 @@ object UploadHelper : CoroutineScope by MainScope() {
     private fun uploadV2(
         index: Int,
         map: MutableMap<String, String>,
+        type: Int = FileType.FAMILY_IMAGE.type,
         list: List<UpLoadInterface>,
         uploadList: MutableList<HljUploadResult>,
         builder: UploadBuilder<List<HljUploadResult>>,
@@ -236,7 +241,7 @@ object UploadHelper : CoroutineScope by MainScope() {
                     it.height = upLoadItem.height()
                 })
                 builder.getCount()?.invoke(uploadList.size)
-                uploadV2(index + 1, map, list, uploadList, builder, globalTokenService)
+                uploadV2(index + 1, map, type, list, uploadList, builder, globalTokenService)
             }
             else -> {
                 val hljUploadResult = uploadMap["$filePath/$tokenPath/$from"]
@@ -245,10 +250,10 @@ object UploadHelper : CoroutineScope by MainScope() {
                     hljUploadResult != null -> {
                         uploadList.add(hljUploadResult)
                         builder.getCount()?.invoke(uploadList.size)
-                        uploadV2(index + 1, map, list, uploadList, builder, globalTokenService)
+                        uploadV2(index + 1, map, type,list, uploadList, builder, globalTokenService)
                     }
                     TextUtils.isEmpty(acceptedToken) -> {
-                        requestToken(index, map, list, uploadList, builder, globalTokenService)
+                        requestToken(index, map, type,list, uploadList, builder, globalTokenService)
                     }
                     else -> {
                         Log.e("hlj_upload", "accept获得token:${realTokenPath(globalTokenPath, from)}")
@@ -263,6 +268,7 @@ object UploadHelper : CoroutineScope by MainScope() {
                                 uploadV2(
                                     index + 1,
                                     map,
+                                    type,
                                     list,
                                     uploadList,
                                     builder,
