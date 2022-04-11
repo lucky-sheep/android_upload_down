@@ -17,6 +17,7 @@ public class HljUploadResult {
     private int width;
     private int height;
     private String hash;
+    private String key;
     private JsonElement orientation;
 
     @SerializedName("avinfo")
@@ -25,15 +26,14 @@ public class HljUploadResult {
 
     private String url;
 
-    public String getUrl(String folderName) {
+    public String getUrl() {
         if (!TextUtils.isEmpty(url)) {
             return url;
         }
-        //        if (TextUtils.isEmpty(domain) || TextUtils.isEmpty(path)) {
-        //            return "";
-        //        }
-
-        return Domain.INSTANCE.getDoamin() + folderName + "" + hash;
+//        if (TextUtils.isEmpty(domain) || TextUtils.isEmpty(path)) {
+//            return "";
+//        }
+        return Domain.INSTANCE.getDoamin() +""+ key;
     }
 
     public void setUrl(String url) {

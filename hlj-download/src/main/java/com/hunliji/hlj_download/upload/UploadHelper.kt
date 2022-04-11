@@ -248,7 +248,7 @@ object UploadHelper : CoroutineScope by MainScope() {
         when {
             skipUpLoad(filePath) -> {
                 uploadList.add(HljUploadResult().also {
-                    it.setUrl(filePath ?: "")
+                    it.url = filePath ?: ""
                     it.width = upLoadItem.width()
                     it.height = upLoadItem.height()
                 })
