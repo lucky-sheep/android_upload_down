@@ -111,7 +111,8 @@ object UploadHelper : CoroutineScope by MainScope() {
                         ?: throw Throwable(message = "token没取到")
                 parseToken?.invoke(
                     tokenObject
-                ) ?: builder.getTokenParse()?.invoke(tokenObject) ?: parseToken(tokenObject).fileUploadToken?:""
+                ) ?: builder.getTokenParse()?.invoke(tokenObject)
+                ?: parseToken(tokenObject).fileUploadToken ?: ""
             }
             if (TextUtils.isEmpty(token)) {
                 throw Throwable(message = "token没取到")
@@ -130,7 +131,11 @@ object UploadHelper : CoroutineScope by MainScope() {
             val loadResult = if (upLoadFile.length() < putThreshold) {
                 val fileBody: RequestBody =
                     ProgressBody(RequestBody.create(null, upLoadFile), builder.getProgress())
-                val part = MultipartBody.Part.createFormData("file", "${userId}_${Utils.MD5(file.name)}", fileBody)
+                val part = MultipartBody.Part.createFormData(
+                    "file",
+                    "${userId}_${Utils.MD5(file.name)}",
+                    fileBody
+                )
                 val tokenBody = RequestBody.create(MediaType.parse("text/plain"), token)
                 var keyBody: RequestBody? = null
                 if (upLoadFile.name.toLowerCase(Locale.getDefault()).endsWith(".gif")) {
@@ -140,9 +145,16 @@ object UploadHelper : CoroutineScope by MainScope() {
                             .getDeviceUuidString(null) + System.currentTimeMillis()
                     }
                     keyBody = RequestBody.create(MediaType.parse("text/plain"), "$name.gif")
+                } else {
+                    var name = EncodeUtil.md5sum(upLoadFile)
+                    if (TextUtils.isEmpty(name)) {
+                        name = DeviceUuidFactory.getInstance()
+                            .getDeviceUuidString(null) + System.currentTimeMillis()
+                    }
+                    keyBody = RequestBody.create(MediaType.parse("text/plain"), "${uploadInfo?.getImageType(type)}${userId}_${name}.png")
                 }
-                Log.e("imageHostUrl","=========${uploadInfo?.imageHostUrl}")
-                retrofit.uploadFile(uploadInfo?.getImageType(type),tokenBody, part, keyBody)
+                Log.e("imageHostUrl", "=========${uploadInfo?.imageHostUrl}")
+                retrofit.uploadFile(tokenBody, part, keyBody)
             } else {
                 Block(
                     upLoadFile,

@@ -18,10 +18,9 @@ internal interface FileService {
     @GET
     suspend fun getToken(@Url url: String): JsonObject
 
-    @POST("http://up.qiniu.com/{folderName}")
+    @POST("http://up.qiniu.com")
     @Multipart
     suspend fun uploadFile(
-        @Path("folderName") folderName: String?,
         @Part("token") token: RequestBody,
         @Part filePart: MultipartBody.Part,
         @Part("key") key: RequestBody? = null
