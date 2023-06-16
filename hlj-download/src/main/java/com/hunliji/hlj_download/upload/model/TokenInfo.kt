@@ -18,7 +18,8 @@ data class UploadInfo(
     val fileUploadToken:String?=null,
     val headImgFolder:String?=null,
     val anchorFolder:String?=null,
-    val familyFolder:String?=null
+    val familyFolder:String?=null,
+    val VideoFolder:String?=null
 ){
     fun getImageType(type: Int): String{
         return when(type){
@@ -27,6 +28,9 @@ data class UploadInfo(
             }
             FileType.ANCHOR_IMAGE.type ->{
                 anchorFolder?:""
+            }
+            FileType.VIDEO_IMAGE.type ->{
+                VideoFolder?:""
             }
             else-> {
                 familyFolder?:""
@@ -38,5 +42,6 @@ data class UploadInfo(
 enum class FileType(val type: Int){
     HEADER_IMAGE(1),
     ANCHOR_IMAGE(2),
-    FAMILY_IMAGE(3)
+    FAMILY_IMAGE(3),
+    VIDEO_IMAGE(4),
 }

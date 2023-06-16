@@ -145,6 +145,13 @@ object UploadHelper : CoroutineScope by MainScope() {
                             .getDeviceUuidString(null) + System.currentTimeMillis()
                     }
                     keyBody = RequestBody.create(MediaType.parse("text/plain"), "$name.gif")
+                }else if (upLoadFile.name.toLowerCase(Locale.getDefault()).endsWith(".mp4")){
+                    var name = EncodeUtil.md5sum(upLoadFile)
+                    if (TextUtils.isEmpty(name)) {
+                        name = DeviceUuidFactory.getInstance()
+                            .getDeviceUuidString(null) + System.currentTimeMillis()
+                    }
+                    keyBody = RequestBody.create(MediaType.parse("text/plain"), "${uploadInfo?.getImageType(type)}${userId}_${name}.mp4")
                 } else {
                     var name = EncodeUtil.md5sum(upLoadFile)
                     if (TextUtils.isEmpty(name)) {
